@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+    <style>
+        canvas {
+            border: 1px solid #ccc;
+        }
+    </style>
+</head>
+<body>
+<canvas width="600" height="400"></canvas>
+<script>
+    /*构造函数*/
+    function Person(ctx) {
+        this.ctx = ctx || document.querySelector("canvas").getContext("2d");
+        this.canvasWidth = this.ctx.canvas.width;
+        this.canvasHeight = this.ctx.canvas.height;
+        this.stepSize = 20;
+        /*0 前 1 左 2 右 3 后*/
+        this.direction = 0;
+        this.index = 0;
+        this.xStep=0;
+        this.yStep=0;
+    }
+
+    /*行为和方法*/
+    Person.prototype.init = function () {
+        let that = this;
+        this.loadImage(function (img) {
+            that.drawImage(img, 0, 0,0,0);
+            /*按键控制小人*/
+            /*下 40 右 39 上 38 左 37*/
+            window.onkeydown=function (e){
+                if (e.keyCode === 40){
+                    that.direction = 0;
+                    that.yStep+=that.stepSize;
+                }
+
+                else if (e.keyCode === 39){
+                    that.direction = 2;
+                    that.xStep+=that.stepSize;
+                }
+
+                else if (e.keyCode === 38){
+                    that.direction = 3;
+                    that.yStep-=that.stepSize;
+                }
+
+                else if (e.keyCode === 37){
+                    that.direction = 1;
+                    that.xStep-=that.stepSize;
+                }
+
+                that.index++;
+                if (that.index >= 4)
+                    that.index = 0;
+                that.drawImage(img, that.index, that.direction,that.xStep,that.yStep);
+            };
+        });
+    };
+    Person.prototype.loadImage = function (callback) {
+        let img = new Image();
+        img.onload = function () {
+            callback && callback(img);
+        };
+        img.src = "image/04.png";
+    };
+    Person.prototype.drawImage = function (img, index, direction,xStep,yStep) {
+        this.imgWidth = img.width;
+        this.imgHeight = img.height;
+        this.personWidth = this.imgWidth / 4;
+        this.personHeight = this.imgHeight / 4;
+        this.x0 = this.canvasWidth / 2 - this.personWidth / 2;
+        this.y0 = this.canvasHeight / 2 - this.personHeight / 2;
+        this.ctx.clearRect(0,0,600,400);
+        this.ctx.drawImage(img,
+            index * this.personWidth, direction * this.personHeight,
+            this.personWidth, this.personHeight,
+            this.x0+xStep, this.y0+yStep,
+            this.personWidth, this.personHeight
+        );
+    };
+    /*初始化*/
+    let person = new Person();
+    person.init();
+
+</script>
+</body>
+</html>
